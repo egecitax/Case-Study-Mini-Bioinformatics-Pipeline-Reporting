@@ -1,0 +1,4 @@
+sample: "run1"
+fastq: "data/demo.fastq"
+outdir: "results"
+threads: 4

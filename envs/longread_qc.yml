@@ -1,0 +1,12 @@
+name: longread_qc
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - python=3.11
+  - snakemake
+  - nanoplot
+  - biopython
+  - pandas
+  - matplotlib
