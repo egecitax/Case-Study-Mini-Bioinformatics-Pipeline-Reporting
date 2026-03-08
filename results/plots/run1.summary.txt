@@ -1,0 +1,19 @@
+n_reads	81011
+
+[GC Content (%)]
+mean	53.0001
+median	53.5299
+min	14.9701
+max	73.3963
+
+[Read Length (bp)]
+mean	1038.2354
+median	547.0000
+min	86.0000
+max	686155.0000
+
+[Mean Read Quality (Phred)]
+mean	17.8963
+median	17.3116
+min	2.7504
+max	38.8399
