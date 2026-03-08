@@ -94,6 +94,15 @@ Mean Read Quality
 Mean: **Q17.9**
 Median: **Q17.3**
 
+### GC Content Distribution
+![GC](results/plots/run1.gc_content_hist.png)
+
+### Mean Read Quality Distribution
+![Quality](results/plots/run1.mean_q_hist.png)
+
+### Read Length Distribution
+![Length](results/plots/run1.read_length_hist.png)
+
 ---
 
 ## Interpretation
