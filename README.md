@@ -164,6 +164,8 @@ docker run --rm -it -v ${PWD}:/work longread-qc snakemake --cores 4
 
 This will automatically execute all pipeline steps and generate the QC report, statistics, and visualizations.
 
+Note: Desired Fastq file must be in data directory and after that, fastq file path must be updated in config/config.yaml file accordingly
+
 ---
 
 # Reproducibility
