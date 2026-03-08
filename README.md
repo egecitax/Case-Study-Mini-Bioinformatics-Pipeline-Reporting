@@ -1,38 +1,47 @@
-# Mini Bioinformatics Pipeline – Long-Read QC & Reporting
+# Mini Bioinformatics Pipeline – Long-Read QC Analysis
 
-## Overview
+This repository contains a **reproducible bioinformatics pipeline** for performing quality control and exploratory analysis of long-read sequencing data.
+The workflow is implemented using **Snakemake** and runs inside a **Docker container**, ensuring that the analysis can be reproduced consistently across different environments.
 
-This repository contains a **reproducible bioinformatics pipeline** that performs **quality control and exploratory analysis of long-read sequencing data** from FASTQ files.
-
-The pipeline was designed as a minimal but realistic workflow to help researchers quickly understand the quality characteristics of sequencing reads before performing computationally expensive downstream analyses such as alignment or assembly.
-
-The workflow is implemented using **Snakemake** and executed inside a **Docker container**, ensuring that the analysis is fully reproducible and easy to run on any machine.
-
-Workflow managers like Snakemake are widely used in bioinformatics to automate multi-step analyses and make them reproducible by defining rules that transform input files into outputs through chained steps. ([carpentries-incubator.github.io][1])
+The pipeline performs automated **quality control, read statistics calculation, and data visualization** on a FASTQ sequencing dataset.
 
 ---
 
-# Pipeline Functionality
+# Objective
 
-The pipeline performs the following steps automatically:
+The goal of this project is to create a reproducible pipeline that:
 
-### 1. Long-Read Quality Control
-
-The workflow runs **NanoPlot**, a tool designed specifically for analyzing long-read sequencing data and generating visual summaries of read quality and length distributions. ([Front Line Genomics][2])
-
-NanoPlot generates an HTML report containing plots and summary statistics describing the dataset.
+1. Performs **quality control (QC)** on raw long-read sequencing data.
+2. Calculates read-level statistics.
+3. Generates visualizations and summary statistics to help researchers understand the characteristics of the dataset before downstream analysis.
 
 ---
 
-### 2. Custom Read-Level Statistics
+# Pipeline Overview
 
-A Python script processes the FASTQ file and computes key statistics for **each individual read**:
+The pipeline consists of three main stages.
 
-* GC content (%)
-* Read length
-* Mean Phred quality score
+### 1. Quality Control (QC)
 
-These statistics are saved in a structured format:
+The workflow uses **NanoPlot**, a QC tool designed specifically for **long-read sequencing technologies** such as Oxford Nanopore and PacBio.
+
+NanoPlot generates an HTML report that summarizes sequencing read characteristics such as:
+
+* read length distribution
+* quality score distribution
+* sequencing yield
+
+---
+
+### 2. Read Statistics Calculation
+
+A custom Python script processes each read in the FASTQ file and calculates:
+
+* **GC content (%)**
+* **Read length (bp)**
+* **Mean read quality score (Phred)**
+
+These values are saved in a structured CSV file:
 
 ```
 results/stats/run1.read_stats.csv
@@ -40,30 +49,23 @@ results/stats/run1.read_stats.csv
 
 ---
 
-### 3. Visualization
+### 3. Data Visualization
 
-Another Python script automatically generates distribution plots showing:
+A separate visualization script generates plots showing the distributions of:
 
-* GC content distribution
-* Read length distribution
-* Mean read quality distribution
+* GC content
+* Read lengths
+* Mean read quality scores
 
-These plots help researchers quickly assess whether the sequencing run produced data suitable for downstream analysis.
+Output files:
 
----
+```
+results/plots/run1.gc_content_hist.png
+results/plots/run1.read_length_hist.png
+results/plots/run1.mean_q_hist.png
+```
 
-### 4. Summary Statistics
-
-The pipeline also generates a summary report containing key metrics such as:
-
-* Mean
-* Median
-* Minimum
-* Maximum
-
-for each computed statistic.
-
-Example output file:
+The script also computes summary statistics (mean, median, min, max) for each metric and saves them to:
 
 ```
 results/plots/run1.summary.txt
@@ -71,171 +73,106 @@ results/plots/run1.summary.txt
 
 ---
 
-# Workflow Structure
+# Example Results
 
-```
-FASTQ input
-     ↓
-NanoPlot QC
-     ↓
-Custom read statistics (Python)
-     ↓
-CSV output
-     ↓
-Visualization generation
-     ↓
-Summary statistics
-```
+The pipeline was executed on the provided dataset (`barcode77.fastq.gz`).
+
+Key summary statistics:
+
+Total reads: **81,011**
+
+GC Content
+Mean: **53.0%**
+Median: **53.5%**
+
+Read Length
+Mean: **1038 bp**
+Median: **547 bp**
+Maximum: **686,155 bp**
+
+Mean Read Quality
+Mean: **Q17.9**
+Median: **Q17.3**
 
 ---
 
-# Project Structure
+## Interpretation
+
+**GC Content**
+
+The GC content distribution is centered around ~53% and shows a relatively smooth, unimodal distribution.
+This suggests that the dataset does not exhibit strong GC bias or obvious contamination.
+
+**Read Length**
+
+The read length distribution shows a large number of shorter reads and a smaller number of extremely long reads.
+This long-tailed pattern is typical for long-read sequencing technologies.
+
+**Read Quality**
+
+The mean read quality is approximately Q18.
+For long-read sequencing platforms such as Nanopore, this quality level is generally considered sufficient for downstream analyses such as alignment.
+
+Overall, the dataset appears suitable for further analysis.
+
+---
+
+# Repository Structure
 
 ```
-Case-Study-Mini-Bioinformatics-Pipeline-Reporting
-│
+.
 ├── Snakefile
 ├── Dockerfile
-├── .gitignore
-│
+├── README.md
+├── EMAIL_TO_PROFESSOR.md
 ├── config
 │   └── config.yaml
-│
 ├── envs
 │   └── longread_qc.yml
-│
 ├── scripts
 │   ├── compute_read_stats.py
 │   └── plot_distributions.py
-│
-├── data
-│   └── demo.fastq
+└── data
 ```
-
----
-
-# Requirements
-
-The pipeline requires only:
-
-* **Docker Desktop**
-
-All dependencies are automatically installed inside the container.
 
 ---
 
 # Running the Pipeline
 
-### 1. Clone the repository
+The pipeline runs inside Docker to ensure reproducibility.
 
-```bash
-git clone https://github.com/egecitax/Case-Study-Mini-Bioinformatics-Pipeline-Reporting.git
-cd Case-Study-Mini-Bioinformatics-Pipeline-Reporting
+### Build Docker image
+
 ```
-
----
-
-### 2. Build the Docker image
-
-```bash
 docker build -t longread-qc .
 ```
 
----
+### Run the pipeline
 
-### 3. Run the pipeline
-
-```bash
+```
 docker run --rm -it -v ${PWD}:/work longread-qc snakemake --cores 4
 ```
 
-The pipeline will automatically generate results inside the `results/` directory.
+This will automatically execute all pipeline steps and generate the QC report, statistics, and visualizations.
 
 ---
 
-# Output Files
+# Reproducibility
 
-After execution, the pipeline produces:
+The workflow is reproducible because:
 
-```
-results/
-│
-├── nanoplot/
-│   └── run1/
-│       └── NanoPlot-report.html
-│
-├── stats/
-│   └── run1.read_stats.csv
-│
-└── plots/
-    ├── run1.gc_content_hist.png
-    ├── run1.read_length_hist.png
-    ├── run1.mean_q_hist.png
-    └── run1.summary.txt
-```
+* it is defined using **Snakemake**
+* all dependencies are included inside a **Docker container**
+* the pipeline can be executed with a single command
 
-### Output Description
-
-| Output              | Description                                         |
-| ------------------- | --------------------------------------------------- |
-| NanoPlot report     | Interactive QC report for long-read sequencing data |
-| Read statistics CSV | Per-read computed statistics                        |
-| Distribution plots  | Visual summaries of GC, length, and quality         |
-| Summary report      | Mean/median/min/max statistics                      |
+This ensures that the analysis can be reproduced consistently across different systems.
 
 ---
 
-# Using Your Own FASTQ File
+# Communication
 
-Replace the FASTQ file inside the `data/` directory.
-
-Example:
+A sample communication summarizing the results for a non-technical collaborator is included in:
 
 ```
-data/input.fastq.gz
+EMAIL_TO_PROFESSOR.md
 ```
-
-Then update the configuration file:
-
-```
-config/config.yaml
-```
-
-Example:
-
-```
-fastq: "data/input.fastq.gz"
-```
-
-Run the pipeline again with the same Docker command.
-
----
-
-# Notes
-
-The repository includes a small **demo FASTQ file** to demonstrate pipeline functionality.
-
-For real sequencing runs, users should provide their own FASTQ datasets.
-
----
-
-# Technologies Used
-
-* Snakemake
-* Docker
-* Python
-* Biopython
-* Pandas
-* Matplotlib
-* NanoPlot
-
----
-
-# Author
-
-**Ege Çıtak**
-Artificial Intelligence & Data Engineering
-Ankara University
-
-[1]: https://carpentries-incubator.github.io/snakemake-novice-bioinformatics/?utm_source=chatgpt.com "Snakemake for Bioinformatics: Summary and Setup"
-[2]: https://frontlinegenomics.com/how-to-ngs-quality-control/?utm_source=chatgpt.com "How-to: NGS Quality Control"
