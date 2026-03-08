@@ -1,4 +1,4 @@
 sample: "run1"
-fastq: "data/demo.fastq"
+fastq: "data/barcode77.fastq"
 outdir: "results"
 threads: 4
